@@ -11,3 +11,23 @@ export class BloqueInvalidoError extends Error {
         this.name = "BloqueInvalidoError"
     }
 }
+export class ProcesoInvalidoError extends Error {
+    constructor(mensaje: string) {
+        super(mensaje)
+        this.name = "ProcesoInvalidoError"
+    }
+}
+
+export class PidDuplicadoError extends Error {
+    constructor(mensaje: string) {
+        super(mensaje)
+        this.name = "PidDuplicadoError"
+    }
+}
+
+export class ProcesoExcedeMemoriaError extends Error {
+    constructor(mensaje: string) {
+        super(mensaje)
+        this.name = "ProcesoExcedeMemoriaError"
+    }
+}
