@@ -1,4 +1,4 @@
-import { ProcesoInvalidoError } from "./Errores"
+import { ProcesoInvalidoError, TransicionInvalidaError } from "./Errores"
 
 export enum EstadoProceso {
     Nuevo = "NUEVO",
@@ -67,4 +67,48 @@ export class Process {
             )
         }
     }
+    admitir(): void {
+    this.transicionarA(EstadoProceso.Listo)
+}
+
+esperarMemoria(): void {
+    this.transicionarA(EstadoProceso.EsperandoMemoria)
+}
+
+transicionarA(nuevoEstado: EstadoProceso): void {
+    const transicionesValidas: Record<EstadoProceso, EstadoProceso[]> = {
+        [EstadoProceso.Nuevo]: [
+            EstadoProceso.EsperandoMemoria,
+            EstadoProceso.Listo,
+        ],
+
+        [EstadoProceso.EsperandoMemoria]: [
+            EstadoProceso.Listo,
+        ],
+
+        [EstadoProceso.Listo]: [
+            EstadoProceso.Ejecutando,
+        ],
+
+        [EstadoProceso.Ejecutando]: [
+            EstadoProceso.Listo,
+            EstadoProceso.Bloqueado,
+            EstadoProceso.Terminado,
+        ],
+
+        [EstadoProceso.Bloqueado]: [
+            EstadoProceso.Listo,
+        ],
+
+        [EstadoProceso.Terminado]: [],
+    }
+
+    if (!transicionesValidas[this.estado].includes(nuevoEstado)) {
+        throw new TransicionInvalidaError(
+            `Transicion invalida para ${this.pid}: ${this.estado} -> ${nuevoEstado}`
+        )
+    }
+
+    this.estado = nuevoEstado
+}
 }
