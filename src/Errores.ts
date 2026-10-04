@@ -31,3 +31,9 @@ export class ProcesoExcedeMemoriaError extends Error {
         this.name = "ProcesoExcedeMemoriaError"
     }
 }
+export class TransicionInvalidaError extends Error {
+    constructor(mensaje: string) {
+        super(mensaje)
+        this.name = "TransicionInvalidaError"
+    }
+}

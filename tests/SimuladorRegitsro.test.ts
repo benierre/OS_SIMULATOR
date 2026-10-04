@@ -38,7 +38,8 @@ describe("RF02 - registrar y consultar procesos", () => {
     it("devuelve undefined al consultar un pid inexistente", () => {
         expect(sim.obtenerProceso("P9")).toBeUndefined()
     })
-     it("rechaza un pid duplicado sin alterar el proceso original", () => {
+
+    it("rechaza un pid duplicado sin alterar el proceso original", () => {
         sim.registrarProceso("P1", 200, 4)
         expect(() => sim.registrarProceso("P1", 300, 9)).toThrow(PidDuplicadoError)
         expect(sim.listarProcesos()).toHaveLength(1)
@@ -87,6 +88,4 @@ describe("RF02 - registrar y consultar procesos", () => {
         ;(sim.listarProcesos() as unknown[]).pop()
         expect(sim.listarProcesos()).toHaveLength(1)
     })
-
-
 })
