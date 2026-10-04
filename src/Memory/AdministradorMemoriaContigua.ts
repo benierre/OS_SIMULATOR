@@ -1,7 +1,7 @@
 import { MemoryBlock } from "./MemoryBlock"
 import { MemoryManager } from "./AdminMemoria"
 
-export class ContiguousMemoryManagern implements MemoryManager {
+export class ContiguousMemoryManager implements MemoryManager {
     private readonly bloques: MemoryBlock[]
     private readonly tamanioTotal: number
 
