@@ -195,4 +195,45 @@ describe("RF03 - admision de procesos y memoria", () => {
     expect(sim.obtenerProceso("P1")?.quantumConsumido).toBe(1)
 })
 
+    it("libera CPU y memoria al finalizar; admite el pendiente en el tick siguiente", () => {
+        const sim = new Simulator(new Config(100, 2))
+        sim.registrarProceso("P1", 100, 1)
+        sim.registrarProceso("P2", 100, 1)
+
+        sim.tickSimulador()
+        expect(sim.getTick()).toBe(1)
+        expect(sim.getTerminados()).toEqual(["P1"])
+        expect(sim.getEsperando()).toEqual(["P2"])
+
+        sim.tickSimulador()
+        expect(sim.getTick()).toBe(2)
+        expect(sim.getTerminados()).toEqual(["P1", "P2"])
+        expect(sim.getMapaMemoria()).toHaveLength(1)
+        expect(sim.getMapaMemoria()[0].estaLibre()).toBe(true)
+    })
+
+    it("al vencer el quantum rota al final de Listos y contabiliza el cambio", () => {
+        const sim = new Simulator(new Config(100, 1))
+        sim.registrarProceso("P1", 20, 4)
+        sim.registrarProceso("P2", 20, 4)
+        sim.tickSimulador()
+        expect(sim.getPidEnCpu()).toBeUndefined()
+        expect(sim.getListos()).toEqual(["P2", "P1"])
+        expect(sim.getCambiosDeContexto()).toBe(2)
+        sim.tickSimulador()
+        expect(sim.getPidEnCpu()).toBeUndefined()
+        expect(sim.getListos()).toEqual(["P1", "P2"])
+        expect(sim.getCambiosDeContexto()).toBe(3)
+    })
+
+    it("un proceso solo renueva su quantum sin cambio de contexto", () => {
+        const sim = new Simulator(new Config(100, 1))
+        sim.registrarProceso("P1", 20, 4)
+        sim.tickSimulador()
+        sim.tickSimulador()
+        expect(sim.getPidEnCpu()).toBe("P1")
+        expect(sim.obtenerProceso("P1")?.quantumConsumido).toBe(0)
+        expect(sim.getCambiosDeContexto()).toBe(1)
+    })
+
 })})

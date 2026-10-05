@@ -37,3 +37,10 @@ export class TransicionInvalidaError extends Error {
         this.name = "TransicionInvalidaError"
     }
 }
+
+export class ProcesoNoEncontradoError extends Error {
+    constructor(mensaje: string) {
+        super(mensaje)
+        this.name = "ProcesoNoEncontradoError"
+    }
+}

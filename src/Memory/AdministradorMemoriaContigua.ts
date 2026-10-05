@@ -1,5 +1,8 @@
 import { MemoryBlock } from "./MemoryBlock"
 import { MemoryManager } from "./AdminMemoria"
+import { ProcesoNoEncontradoError } from "../Errores"
+
+const lanzarError = (error: Error): never => { throw error }
 
 export class ContiguousMemoryManager implements MemoryManager {
     private readonly bloques: MemoryBlock[]
@@ -68,7 +71,9 @@ export class ContiguousMemoryManager implements MemoryManager {
         )
 
         const bloque = this.bloques[indice]
-        return bloque === undefined ? false : this.liberarEnIndice(indice, bloque)
+        return bloque === undefined
+            ? lanzarError(new ProcesoNoEncontradoError(`No existe memoria asignada al proceso ${pid}`))
+            : this.liberarEnIndice(indice, bloque)
     }
 
     private liberarEnIndice(indice: number, bloque: MemoryBlock): boolean {

@@ -12,6 +12,7 @@ const exigir = (condicion: boolean, error: Error): void =>
 export class Simulator {
     private tick = 0
     private cambiosDeContexto = 0
+    private cambioContabilizado = false
     private enCpu: string | undefined = undefined
     private readonly listos: string[] = []
     private readonly esperando: string[] = []
@@ -120,15 +121,44 @@ export class Simulator {
         
     }
     ejecutarProceso(): void {
-    const pid = this.enCpu === undefined ? this.listos.shift() : undefined
-    const proceso = pid === undefined ? undefined : this.procesos.get(pid)
-    proceso?.ejecutar()
-    proceso && (this.enCpu = pid, this.cambiosDeContexto++)
-}
-tickSimulador(): void {
-    this.tick++
-    this.enCpu !== undefined && this.procesos.get(this.enCpu)?.ejecutarTick()
-}
+        const pid = this.enCpu === undefined ? this.listos.shift() : undefined
+        const proceso = pid === undefined ? undefined : this.procesos.get(pid)
+        proceso?.ejecutar()
+        proceso?.reiniciarQuantum()
+        proceso && (this.enCpu = pid)
+        proceso && !this.cambioContabilizado && this.cambiosDeContexto++
+        proceso && (this.cambioContabilizado = false)
+    }
+
+    tickSimulador(): void {
+        this.tick++
+        this.admitirEsperando()
+        this.enCpu === undefined && this.ejecutarProceso()
+
+        const proceso = this.enCpu === undefined
+            ? undefined
+            : this.procesos.get(this.enCpu)
+        proceso?.ejecutarTick()
+        const finalizo = proceso !== undefined && proceso.getCpuRestante() === 0
+        finalizo && proceso && this.finalizarProceso(proceso)
+        !finalizo && proceso && this.revisarQuantum(proceso)
+    }
+
+    private finalizarProceso(proceso: Process): void {
+        proceso.transicionarA(EstadoProceso.Terminado)
+        this.memoria.liberar(proceso.getPid())
+        this.terminados.push(proceso.getPid())
+        this.enCpu = undefined
+    }
+
+    private revisarQuantum(proceso: Process): void {
+        const vencio = proceso.getQuantumConsumido() >= this.config.getQuantum()
+        const rota = vencio && this.listos.length > 0
+        rota && proceso.transicionarA(EstadoProceso.Listo)
+        rota && this.listos.push(proceso.getPid())
+        rota && (this.enCpu = undefined, this.cambiosDeContexto++, this.cambioContabilizado = true)
+        vencio && !rota && proceso.reiniciarQuantum()
+    }
     
 
     obtenerProceso(pid: string): ProcesoVista | undefined {

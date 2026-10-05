@@ -106,8 +106,12 @@ export class Process {
         ))
 
     this.cpuRestante--
-    this.quantumConsumido++
-}
+        this.quantumConsumido++
+    }
+
+    reiniciarQuantum(): void {
+        this.quantumConsumido = 0
+    }
 
     transicionarA(nuevoEstado: EstadoProceso): void {
         const transicionesValidas: Record<EstadoProceso, EstadoProceso[]> = {
