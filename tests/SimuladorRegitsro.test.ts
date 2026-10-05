@@ -22,7 +22,7 @@ describe("RF02 - registrar y consultar procesos", () => {
             memoriaRequerida: 200,
             cpuTotal: 4,
             cpuRestante: 4,
-            estado: EstadoProceso.Nuevo,
+            estado: EstadoProceso.Listo,
             quantumConsumido: 0,
             bloqueoRestante: 0,
         })

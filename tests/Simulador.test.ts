@@ -2,7 +2,13 @@ import { it, describe, expect } from "vitest"
 import { Simulator } from "../src/Simulador"
 import { Config } from "../src/Config"
 import { ContiguousMemoryManager } from "../src/Memory/AdministradorMemoriaContigua"
-import { ConfigInvalidaError } from "../src/Errores"
+import {
+    ConfigInvalidaError,
+    TransicionInvalidaError,
+} from "../src/Errores"
+import { EstadoProceso, Process } from "../src/Proceso"
+
+
 
 describe("RF01 - estado inicial del Simulator", () => {
     it("arranca en tick 0, sin proceso en CPU, con colas vacias y contadores en cero", () => {
@@ -68,5 +74,69 @@ describe("RF01 - ContiguousMemoryManager inicial", () => {
         const m = new ContiguousMemoryManager(1024)
         expect(m.getTamanioTotal()).toBe(1024)
         expect(m.getMemoriaLibre()).toBe(1024)
+    })
+})
+describe("RF03 - admision de procesos y memoria", () => {
+    it("RF03.1 - con memoria suficiente pasa a Listo y queda encolado en Listos", () => {
+        const sim = new Simulator(new Config(1000, 3))
+
+        sim.registrarProceso("P1", 200, 4)
+
+        expect(sim.obtenerProceso("P1")?.estado).toBe(EstadoProceso.Listo)
+        expect(sim.getListos()).toEqual(["P1"])
+        expect(sim.getEsperando()).toEqual([])
+    })
+
+    it("RF03.2 - sin bloque suficiente queda Esperando Memoria", () => {
+        const sim = new Simulator(new Config(1000, 3))
+
+        sim.registrarProceso("P1", 800, 4)
+        sim.registrarProceso("P2", 300, 4)
+
+        expect(sim.obtenerProceso("P1")?.estado).toBe(EstadoProceso.Listo)
+        expect(sim.obtenerProceso("P2")?.estado).toBe(
+            EstadoProceso.EsperandoMemoria
+        )
+
+        expect(sim.getListos()).toEqual(["P1"])
+        expect(sim.getEsperando()).toEqual(["P2"])
+    })
+
+    it("RF03.5 - un proceso Terminado no vuelve a ninguna cola", () => {
+        const proceso = new Process("P1", 200, 4)
+
+        proceso.admitir()
+        proceso.transicionarA(EstadoProceso.Ejecutando)
+        proceso.transicionarA(EstadoProceso.Terminado)
+
+        expect(proceso.getEstado()).toBe(EstadoProceso.Terminado)
+    })
+
+    it("RF03.6 - rechaza la transicion Nuevo a Ejecutando", () => {
+        const proceso = new Process("P1", 200, 4)
+
+        expect(() => {
+            proceso.transicionarA(EstadoProceso.Ejecutando)
+        }).toThrow(TransicionInvalidaError)
+    })
+
+    it("RF03.6 - rechaza cualquier transicion desde Terminado", () => {
+        const proceso = new Process("P1", 200, 4)
+
+        proceso.admitir()
+        proceso.transicionarA(EstadoProceso.Ejecutando)
+        proceso.transicionarA(EstadoProceso.Terminado)
+
+        expect(() => {
+            proceso.admitir()
+        }).toThrow(TransicionInvalidaError)
+
+        expect(() => {
+            proceso.transicionarA(EstadoProceso.Listo)
+        }).toThrow(TransicionInvalidaError)
+
+        expect(() => {
+            proceso.transicionarA(EstadoProceso.Ejecutando)
+        }).toThrow(TransicionInvalidaError)
     })
 })
