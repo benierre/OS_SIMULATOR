@@ -6,8 +6,9 @@ import { EstadoProceso, Process } from "./Proceso"
 import type { ProcesoVista } from "./Proceso"
 import { PidDuplicadoError, ProcesoExcedeMemoriaError, ProcesoInvalidoError, ProcesoNoEncontradoError } from "./Errores"
 
-const exigir = (condicion: boolean, error: Error): void =>
+const exigir = (condicion: boolean, error: Error): void => {
     condicion || (() => { throw error })()
+}
 
 export interface MetricasSimulador {
     readonly ocupacionMemoria: number

@@ -1,7 +1,8 @@
 import { ConfigInvalidaError } from "./Errores"
 
-const exigir = (condicion: boolean, error: Error): void =>
+const exigir = (condicion: boolean, error: Error): void => {
     condicion || (() => { throw error })()
+}
 
 export class Config {
     private readonly memoria: number

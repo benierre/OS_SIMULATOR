@@ -1,7 +1,8 @@
 import { ProcesoInvalidoError, TransicionInvalidaError } from "./Errores"
 
-const exigir = (condicion: boolean, error: Error): void =>
+const exigir = (condicion: boolean, error: Error): void => {
     condicion || (() => { throw error })()
+}
 
 export enum EstadoProceso {
     Nuevo = "NUEVO",
