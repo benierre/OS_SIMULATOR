@@ -236,4 +236,29 @@ describe("RF03 - admision de procesos y memoria", () => {
         expect(sim.getCambiosDeContexto()).toBe(1)
     })
 
+    it("el bloqueo prevalece sobre quantum y al terminar puede ejecutar en ese tick", () => {
+        const sim = new Simulator(new Config(100, 1))
+        sim.registrarProceso("P1", 20, 2)
+        sim.programarBloqueo("P1", 1, 1)
+        sim.tickSimulador()
+        expect(sim.getBloqueados()).toEqual(["P1"])
+        expect(sim.obtenerProceso("P1")?.bloqueoRestante).toBe(1)
+        expect(sim.getMapaMemoria()[0].getPid()).toBe("P1")
+
+        sim.tickSimulador()
+        expect(sim.getBloqueados()).toEqual([])
+        expect(sim.getTerminados()).toEqual(["P1"])
+        expect(sim.obtenerProceso("P1")?.cpuRestante).toBe(0)
+        expect(sim.getCambiosDeContexto()).toBe(2)
+    })
+
+    it("valida N positivo y acotado al CPU total y duración positiva", () => {
+        const sim = new Simulator(new Config(100, 2))
+        sim.registrarProceso("P1", 20, 3)
+        expect(() => sim.programarBloqueo("P1", 0, 1)).toThrow()
+        expect(() => sim.programarBloqueo("P1", 4, 1)).toThrow()
+        expect(() => sim.programarBloqueo("P1", 1, 0)).toThrow()
+        expect(() => sim.programarBloqueo("P1", 1, 1)).not.toThrow()
+    })
+
 })})

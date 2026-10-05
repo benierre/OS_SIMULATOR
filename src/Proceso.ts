@@ -113,6 +113,16 @@ export class Process {
         this.quantumConsumido = 0
     }
 
+    bloquear(duracion: number): void {
+        this.transicionarA(EstadoProceso.Bloqueado)
+        this.bloqueoRestante = duracion
+    }
+
+    avanzarBloqueo(): boolean {
+        this.bloqueoRestante = Math.max(0, this.bloqueoRestante - 1)
+        return this.bloqueoRestante === 0
+    }
+
     transicionarA(nuevoEstado: EstadoProceso): void {
         const transicionesValidas: Record<EstadoProceso, EstadoProceso[]> = {
             [EstadoProceso.Nuevo]: [
