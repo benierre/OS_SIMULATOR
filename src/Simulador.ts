@@ -2,7 +2,7 @@ import { Config } from "./Config"
 import { MemoryBlock } from "./Memory/MemoryBlock"
 import { MemoryManager } from "./Memory/AdminMemoria"
 import { ContiguousMemoryManager } from "./Memory/AdministradorMemoriaContigua"
-import { Process } from "./Proceso"
+import { EstadoProceso, Process } from "./Proceso"
 import type { ProcesoVista } from "./Proceso"
 import { PidDuplicadoError, ProcesoExcedeMemoriaError } from "./Errores"
 
@@ -97,9 +97,13 @@ export class Simulator {
             this.listos.push(proceso.getPid())
         } else {
             proceso.esperarMemoria()
-            this.esperando.push(proceso.getPid())
+            this.esperando.push(proceso.getPid()) 
         }
+        
+        
+        
     }
+
 
     private admitirEsperando(): void {
         const pendientes = [...this.esperando]
@@ -123,7 +127,31 @@ export class Simulator {
                 this.esperando.push(pid)
             }
         })
+        
+        
     }
+    ejecutarProceso(): void {
+    if (this.enCpu !== undefined) {
+        return
+    }
+
+    const pid = this.listos.shift()
+
+    if (pid === undefined) {
+        return
+    }
+
+    const proceso = this.procesos.get(pid)
+
+    if (proceso === undefined) {
+        return
+    }
+
+    proceso.ejecutar()
+    this.enCpu = pid
+    this.cambiosDeContexto++
+}
+    
 
     obtenerProceso(pid: string): ProcesoVista | undefined {
         return this.procesos.get(pid)?.aVista()

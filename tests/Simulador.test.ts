@@ -139,4 +139,47 @@ describe("RF03 - admision de procesos y memoria", () => {
             proceso.transicionarA(EstadoProceso.Ejecutando)
         }).toThrow(TransicionInvalidaError)
     })
-})
+    describe("RF04 - planificacion", () => {
+    it("ejecuta el primer proceso de la cola de Listos", () => {
+        const sim = new Simulator(new Config(1000, 3))
+
+        sim.registrarProceso("P1", 200, 4)
+        sim.registrarProceso("P2", 200, 3)
+
+        sim.ejecutarProceso()
+
+        expect(sim.obtenerProceso("P1")?.estado).toBe(
+            EstadoProceso.Ejecutando
+        )
+        expect(sim.getPidEnCpu()).toBe("P1")
+        expect(sim.getListos()).toEqual(["P2"])
+    })
+
+    it("incrementa los cambios de contexto al ejecutar un proceso", () => {
+        const sim = new Simulator(new Config(1000, 3))
+
+        sim.registrarProceso("P1", 200, 4)
+
+        expect(sim.getCambiosDeContexto()).toBe(0)
+
+        sim.ejecutarProceso()
+
+        expect(sim.getCambiosDeContexto()).toBe(1)
+    })
+
+    it("no ejecuta otro proceso si la CPU está ocupada", () => {
+        const sim = new Simulator(new Config(1000, 3))
+
+        sim.registrarProceso("P1", 200, 4)
+        sim.registrarProceso("P2", 200, 3)
+
+        sim.ejecutarProceso()
+        sim.ejecutarProceso()
+
+        expect(sim.getPidEnCpu()).toBe("P1")
+        expect(sim.obtenerProceso("P2")?.estado).toBe(
+            EstadoProceso.Listo
+        )
+        expect(sim.getCambiosDeContexto()).toBe(1)
+    })
+})})
