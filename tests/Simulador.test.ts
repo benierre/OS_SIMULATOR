@@ -261,4 +261,55 @@ describe("RF03 - admision de procesos y memoria", () => {
         expect(() => sim.programarBloqueo("P1", 1, 1)).not.toThrow()
     })
 
+    it("calcula métricas con memoria completa y CPU ocupada", () => {
+        const sim = new Simulator(new Config(100, 2))
+        expect(sim.getMetricas().utilizacionCpu).toBe(0)
+        expect(sim.getMetricas().memoriaLibre).toBe(100)
+        sim.registrarProceso("P1", 100, 2)
+        sim.tickSimulador()
+        expect(sim.getMetricas()).toEqual({
+            ocupacionMemoria: 100,
+            utilizacionCpu: 100,
+            cambiosDeContexto: 1,
+            memoriaLibre: 0,
+            mayorHueco: 0,
+            fragmentacionExterna: 0,
+        })
+    })
+
+    it("calcula fragmentación externa como proporción de los huecos libres", () => {
+        const memoria = new ContiguousMemoryManager(100)
+        const sim = new Simulator(new Config(100, 1), memoria)
+        sim.registrarProceso("P1", 20, 1)
+        sim.registrarProceso("P2", 20, 4)
+        sim.registrarProceso("P3", 20, 1)
+        sim.tickSimulador()
+        sim.tickSimulador()
+        sim.tickSimulador()
+        expect(sim.getMetricas().memoriaLibre).toBe(80)
+        expect(sim.getMetricas().mayorHueco).toBe(60)
+        expect(sim.getMetricas().fragmentacionExterna).toBe(25)
+    })
+
+    it("devuelve una vista completa e inmutable sin duplicar procesos", () => {
+        const sim = new Simulator(new Config(100, 2))
+        sim.registrarProceso("P1", 20, 3)
+        sim.registrarProceso("P2", 20, 3)
+        sim.ejecutarProceso()
+        const estado = sim.obtenerEstado()
+        expect(estado).toMatchObject({
+            tick: 0,
+            pidEnCpu: "P1",
+            listos: ["P2"],
+            esperando: [],
+            bloqueados: [],
+            terminados: [],
+        })
+        expect(estado.procesos.filter((proceso) => proceso.estado === EstadoProceso.Ejecutando)).toHaveLength(1)
+        expect(new Set(estado.procesos.map((proceso) => proceso.pid)).size).toBe(estado.procesos.length)
+        expect(Object.isFrozen(estado)).toBe(true)
+        expect(Object.isFrozen(estado.listos)).toBe(true)
+        expect(Object.isFrozen(estado.mapaMemoria)).toBe(true)
+    })
+
 })})

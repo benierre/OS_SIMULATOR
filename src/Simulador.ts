@@ -18,6 +18,18 @@ export interface MetricasSimulador {
     readonly fragmentacionExterna: number
 }
 
+export interface EstadoSimulador {
+    readonly tick: number
+    readonly pidEnCpu: string | undefined
+    readonly listos: readonly string[]
+    readonly esperando: readonly string[]
+    readonly bloqueados: readonly string[]
+    readonly terminados: readonly string[]
+    readonly procesos: readonly ProcesoVista[]
+    readonly mapaMemoria: readonly MemoryBlock[]
+    readonly metricas: MetricasSimulador
+}
+
 export class Simulator {
     private tick = 0
     private cambiosDeContexto = 0
@@ -86,6 +98,20 @@ export class Simulator {
 
     getMetricas(): MetricasSimulador {
         return this.metricas
+    }
+
+    obtenerEstado(): EstadoSimulador {
+        return Object.freeze({
+            tick: this.tick,
+            pidEnCpu: this.enCpu,
+            listos: Object.freeze([...this.listos]),
+            esperando: Object.freeze([...this.esperando]),
+            bloqueados: Object.freeze([...this.bloqueados]),
+            terminados: Object.freeze([...this.terminados]),
+            procesos: Object.freeze([...this.procesos.values()].map((proceso) => proceso.aVista())),
+            mapaMemoria: Object.freeze([...this.memoria.getBloques()]),
+            metricas: this.metricas,
+        })
     }
 
     programarBloqueo(pid: string, cadaNTicks: number, duracion: number): void {
