@@ -46,3 +46,35 @@ describe("RF05 - liberación y coalescencia de memoria", () => {
         expect(memoria.getBloques().map((bloque) => [bloque.getInicio(), bloque.getTamanio(), bloque.getPid()])).toEqual(antes)
     })
 })
+
+describe("RF04 - asignación Best-Fit", () => {
+    it("elige el menor hueco suficiente", () => {
+        const memoria = new ContiguousMemoryManager(1100)
+        memoria.asignar("A", 100)
+        memoria.asignar("B", 500)
+        memoria.asignar("C", 200)
+        memoria.asignar("D", 300)
+        memoria.liberar("B")
+        memoria.liberar("D")
+
+        memoria.asignar("P", 250)
+
+        expect(memoria.getBloques().map((bloque) => [bloque.getInicio(), bloque.getTamanio(), bloque.getPid()])).toContainEqual([800, 250, "P"])
+    })
+
+    it("desempata eligiendo el hueco de menor dirección", () => {
+        const memoria = new ContiguousMemoryManager(1000)
+        memoria.asignar("A", 300)
+        memoria.asignar("B", 100)
+        memoria.asignar("X", 100)
+        memoria.asignar("C", 300)
+        memoria.asignar("Y", 100)
+        memoria.asignar("Z", 100)
+        memoria.liberar("A")
+        memoria.liberar("C")
+
+        memoria.asignar("P", 250)
+
+        expect(memoria.getBloques().map((bloque) => [bloque.getInicio(), bloque.getTamanio(), bloque.getPid()])).toContainEqual([0, 250, "P"])
+    })
+})

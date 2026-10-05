@@ -28,11 +28,13 @@ export class ContiguousMemoryManager implements MemoryManager {
     }
 
     asignar(pid: string, tamanio: number): boolean {
-        const indice = this.bloques.findIndex(
-            (bloque) =>
-                bloque.estaLibre() &&
-                bloque.getTamanio() >= tamanio
-        )
+        const indice = this.bloques.reduce((mejorIndice, bloque, indiceActual) => {
+            const esCandidato = bloque.estaLibre() && bloque.getTamanio() >= tamanio
+            const mejor = this.bloques[mejorIndice]
+            return esCandidato && (mejor === undefined || bloque.getTamanio() < mejor.getTamanio())
+                ? indiceActual
+                : mejorIndice
+        }, -1)
 
         const bloque = this.bloques[indice]
         return bloque === undefined ? false : this.asignarEnIndice(indice, bloque, pid, tamanio)
