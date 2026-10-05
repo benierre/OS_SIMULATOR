@@ -78,7 +78,7 @@ describe("RF02 - registrar y consultar procesos", () => {
         try {
             ;(vista as { cpuRestante: number }).cpuRestante = 0
         } catch {
-            // la vista esta congelada: en modo estricto asignar lanza TypeError
+
         }
         expect(sim.obtenerProceso("P1")?.cpuRestante).toBe(4)
     })
