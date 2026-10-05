@@ -1,17 +1,16 @@
 import { BloqueInvalidoError } from "../Errores"
 
+const exigir = (condicion: boolean, error: Error): void =>
+    condicion || (() => { throw error })()
+
 export class MemoryBlock {
     private readonly inicio: number
     private readonly tamanio: number
     private readonly pid: string | undefined
 
     constructor(inicio: number, tamanio: number, pid?: string) {
-        if (!Number.isInteger(inicio) || inicio < 0) {
-            throw new BloqueInvalidoError(`inicio debe ser un entero >= 0 (recibido: ${inicio})`)
-        }
-        if (!Number.isInteger(tamanio) || tamanio <= 0) {
-            throw new BloqueInvalidoError(`tamanio debe ser un entero positivo (recibido: ${tamanio})`)
-        }
+        exigir(Number.isInteger(inicio) && inicio >= 0, new BloqueInvalidoError(`inicio debe ser un entero >= 0 (recibido: ${inicio})`))
+        exigir(Number.isInteger(tamanio) && tamanio > 0, new BloqueInvalidoError(`tamanio debe ser un entero positivo (recibido: ${tamanio})`))
         this.inicio = inicio
         this.tamanio = tamanio
         this.pid = pid

@@ -6,6 +6,9 @@ import { EstadoProceso, Process } from "./Proceso"
 import type { ProcesoVista } from "./Proceso"
 import { PidDuplicadoError, ProcesoExcedeMemoriaError } from "./Errores"
 
+const exigir = (condicion: boolean, error: Error): void =>
+    condicion || (() => { throw error })()
+
 export class Simulator {
     private tick = 0
     private cambiosDeContexto = 0
@@ -70,17 +73,13 @@ export class Simulator {
             cpuTotal
         )
 
-        if (this.procesos.has(pid)) {
-            throw new PidDuplicadoError(
+        exigir(!this.procesos.has(pid), new PidDuplicadoError(
                 `Ya existe un proceso con pid ${pid}`
-            )
-        }
+            ))
 
-        if (memoriaRequerida > this.memoria.getTamanioTotal()) {
-            throw new ProcesoExcedeMemoriaError(
+        exigir(memoriaRequerida <= this.memoria.getTamanioTotal(), new ProcesoExcedeMemoriaError(
                 `El proceso ${pid} pide ${memoriaRequerida} KB y la memoria total es ${this.memoria.getTamanioTotal()} KB`
-            )
-        }
+            ))
 
         this.procesos.set(pid, proceso)
         this.admitirProceso(proceso)
@@ -92,16 +91,9 @@ export class Simulator {
             proceso.getMemoriaRequerida()
         )
 
-        if (pudoAsignar) {
-            proceso.admitir()
-            this.listos.push(proceso.getPid())
-        } else {
-            proceso.esperarMemoria()
-            this.esperando.push(proceso.getPid()) 
-        }
-        
-        
-        
+        const enCola = pudoAsignar ? this.listos : this.esperando
+        ;(pudoAsignar ? proceso.admitir() : proceso.esperarMemoria())
+        enCola.push(proceso.getPid())
     }
 
 
@@ -120,36 +112,22 @@ export class Simulator {
                     proceso.getMemoriaRequerida()
                 )
 
-            if (pudoAsignar && proceso !== undefined) {
-                proceso.admitir()
-                this.listos.push(pid)
-            } else {
-                this.esperando.push(pid)
-            }
+            const admitido = pudoAsignar && proceso !== undefined
+            admitido && proceso.admitir()
+            ;(admitido ? this.listos : this.esperando).push(pid)
         })
         
         
     }
     ejecutarProceso(): void {
-    if (this.enCpu !== undefined) {
-        return
-    }
-
-    const pid = this.listos.shift()
-
-    if (pid === undefined) {
-        return
-    }
-
-    const proceso = this.procesos.get(pid)
-
-    if (proceso === undefined) {
-        return
-    }
-
-    proceso.ejecutar()
-    this.enCpu = pid
-    this.cambiosDeContexto++
+    const pid = this.enCpu === undefined ? this.listos.shift() : undefined
+    const proceso = pid === undefined ? undefined : this.procesos.get(pid)
+    proceso?.ejecutar()
+    proceso && (this.enCpu = pid, this.cambiosDeContexto++)
+}
+tickSimulador(): void {
+    this.tick++
+    this.enCpu !== undefined && this.procesos.get(this.enCpu)?.ejecutarTick()
 }
     
 

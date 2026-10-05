@@ -1,5 +1,8 @@
 import { ConfigInvalidaError } from "./Errores"
 
+const exigir = (condicion: boolean, error: Error): void =>
+    condicion || (() => { throw error })()
+
 export class Config {
     private readonly memoria: number
     private readonly quantum: number
@@ -24,10 +27,8 @@ export class Config {
     }
 
     private static exigirEnteroPositivo(nombre: string, valor: number): void {
-        if (!Number.isInteger(valor) || valor <= 0) {
-            throw new ConfigInvalidaError(
+        exigir(Number.isInteger(valor) && valor > 0, new ConfigInvalidaError(
                 `${nombre} debe ser un entero positivo (recibido: ${valor})`
-            )
-        }
+            ))
     }
 }

@@ -1,5 +1,8 @@
 import { ProcesoInvalidoError, TransicionInvalidaError } from "./Errores"
 
+const exigir = (condicion: boolean, error: Error): void =>
+    condicion || (() => { throw error })()
+
 export enum EstadoProceso {
     Nuevo = "NUEVO",
     EsperandoMemoria = "ESPERANDO_MEMORIA",
@@ -29,9 +32,7 @@ export class Process {
     private bloqueoRestante = 0
 
     constructor(pid: string, memoriaRequerida: number, cpuTotal: number) {
-        if (typeof pid !== "string" || pid.trim() === "") {
-            throw new ProcesoInvalidoError("pid debe ser un texto no vacio")
-        }
+        exigir(typeof pid === "string" && pid.trim() !== "", new ProcesoInvalidoError("pid debe ser un texto no vacio"))
 
         Process.exigirEnteroPositivo("memoriaRequerida", memoriaRequerida)
         Process.exigirEnteroPositivo("cpuTotal", cpuTotal)
@@ -83,11 +84,9 @@ export class Process {
     }
 
     private static exigirEnteroPositivo(nombre: string, valor: number): void {
-        if (!Number.isInteger(valor) || valor <= 0) {
-            throw new ProcesoInvalidoError(
+        exigir(Number.isInteger(valor) && valor > 0, new ProcesoInvalidoError(
                 `${nombre} debe ser un entero positivo (recibido: ${valor})`
-            )
-        }
+            ))
     }
 
     admitir(): void {
@@ -101,6 +100,14 @@ export class Process {
     ejecutar(): void {
         this.transicionarA(EstadoProceso.Ejecutando)
     }
+    ejecutarTick(): void {
+    exigir(this.estado === EstadoProceso.Ejecutando, new TransicionInvalidaError(
+            `El proceso ${this.pid} no esta ejecutando`
+        ))
+
+    this.cpuRestante--
+    this.quantumConsumido++
+}
 
     transicionarA(nuevoEstado: EstadoProceso): void {
         const transicionesValidas: Record<EstadoProceso, EstadoProceso[]> = {
@@ -130,11 +137,9 @@ export class Process {
             [EstadoProceso.Terminado]: [],
         }
 
-        if (!transicionesValidas[this.estado].includes(nuevoEstado)) {
-            throw new TransicionInvalidaError(
+        exigir(transicionesValidas[this.estado].includes(nuevoEstado), new TransicionInvalidaError(
                 `Transicion invalida para ${this.pid}: ${this.estado} -> ${nuevoEstado}`
-            )
-        }
+            ))
 
         this.estado = nuevoEstado
     }

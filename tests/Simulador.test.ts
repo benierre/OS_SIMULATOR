@@ -182,4 +182,17 @@ describe("RF03 - admision de procesos y memoria", () => {
         )
         expect(sim.getCambiosDeContexto()).toBe(1)
     })
+    it("ejecuta un tick del proceso en CPU", () => {
+    const sim = new Simulator(new Config(1000, 3))
+
+    sim.registrarProceso("P1", 200, 4)
+    sim.ejecutarProceso()
+
+    sim.tickSimulador()
+
+    expect(sim.getTick()).toBe(1)
+    expect(sim.obtenerProceso("P1")?.cpuRestante).toBe(3)
+    expect(sim.obtenerProceso("P1")?.quantumConsumido).toBe(1)
+})
+
 })})
