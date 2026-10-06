@@ -10,8 +10,8 @@ Biblioteca en **TypeScript** que simula procesos, memoria contigua y planificaci
 Requisitos: [Node.js](https://nodejs.org/) y npm.
 
 ```bash
-git clone [COMPLETAR: URL del repositorio]
-cd [COMPLETAR: carpeta]
+git clone https://github.com/benierre/OS_SIMULATOR
+cd ("Completar con la direccion de la carpeta")
 npm install
 ```
 
