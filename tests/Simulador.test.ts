@@ -312,4 +312,6 @@ describe("RF03 - admision de procesos y memoria", () => {
         expect(Object.isFrozen(estado.mapaMemoria)).toBe(true)
     })
 
+    it.todo("RF04 integra Best-Fit al admitir procesos desde el simulador")
+    it.todo("RF04 conserva el estado del simulador cuando no hay hueco suficiente")
 })})
