@@ -27,14 +27,6 @@ Ver la cobertura (el reporte HTML queda en `coverage/index.html`):
 npm run coverage
 ```
 
-Para reproducir la cobertura sobre el commit entregado:
-
-```bash
-git checkout [COMPLETAR: hash o tag]
-npm ci
-npm run coverage
-```
-
 ## Restricciones principales
 
 - **Es una biblioteca:** no tiene `main`, consola ni interfaz gráfica. Se demuestra solo con los tests.
