@@ -15,11 +15,11 @@ describe("RF01 - Config", () => {
         expect(config.getQuantum()).toBe(2)
     })
 
-    it.each([0, -1, 1.5, NaN, Infinity])("rechaza memoria %s", (valor) => {
+    it.each([0, -1, 1.5, NaN, Infinity])("rechaza memoria ", (valor) => {
         expect(() => new Config(valor, 2)).toThrow(ConfigInvalidaError)
     })
 
-    it.each([0, -1, 1.5, NaN, Infinity])("rechaza quantum %s", (valor) => {
+    it.each([0, -1, 1.5, NaN, Infinity])("rechaza quantum ", (valor) => {
         expect(() => new Config(1024, valor)).toThrow(ConfigInvalidaError)
     })
 

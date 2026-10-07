@@ -66,7 +66,7 @@ describe("RF02 - registrar y consultar procesos", () => {
         ["P1", 100, 0],
         ["P1", 100, -1],
         ["P1", 100, 2.5],
-    ])("rechaza datos invalidos (%j, %s, %s) sin dejar estado parcial", (pid, mem, cpu) => {
+    ])("rechaza datos invalidos sin dejar estado parcial", (pid, mem, cpu) => {
         expect(() => sim.registrarProceso(pid, mem, cpu)).toThrow(ProcesoInvalidoError)
         expect(sim.listarProcesos()).toHaveLength(0)
     })

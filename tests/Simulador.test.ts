@@ -141,7 +141,7 @@ describe("RF03 - admision de procesos y memoria", () => {
     })
     describe("RF04 - planificacion", () => {
     it("ejecuta el primer proceso de la cola de Listos", () => {
-        const sim = new Simulator(new Config(1000, 3))
+        const sim = new Simulator(new Config(1024, 3))
 
         sim.registrarProceso("P1", 200, 4)
         sim.registrarProceso("P2", 200, 3)
@@ -168,7 +168,7 @@ describe("RF03 - admision de procesos y memoria", () => {
     })
 
     it("no ejecuta otro proceso si la CPU está ocupada", () => {
-        const sim = new Simulator(new Config(1000, 3))
+        const sim = new Simulator(new Config(1024, 3))
 
         sim.registrarProceso("P1", 200, 4)
         sim.registrarProceso("P2", 200, 3)
@@ -183,7 +183,7 @@ describe("RF03 - admision de procesos y memoria", () => {
         expect(sim.getCambiosDeContexto()).toBe(1)
     })
     it("ejecuta un tick del proceso en CPU", () => {
-    const sim = new Simulator(new Config(1000, 3))
+    const sim = new Simulator(new Config(1024, 3))
 
     sim.registrarProceso("P1", 200, 4)
     sim.ejecutarProceso()
