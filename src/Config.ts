@@ -16,7 +16,7 @@ export class Config {
     }
 
     static referencia(): Config {
-        return new Config(1024, 2)
+        return new Config(1024, 3)
     }
 
     getMemoria(): number {

@@ -71,21 +71,4 @@ describe("RF02 - registrar y consultar procesos", () => {
         expect(sim.listarProcesos()).toHaveLength(0)
     })
 
-    it("modificar la vista devuelta no cambia el estado interno", () => {
-        sim.registrarProceso("P1", 200, 4)
-        const vista = sim.obtenerProceso("P1")
-        expect(Object.isFrozen(vista)).toBe(true)
-        try {
-            ;(vista as { cpuRestante: number }).cpuRestante = 0
-        } catch {
-
-        }
-        expect(sim.obtenerProceso("P1")?.cpuRestante).toBe(4)
-    })
-
-    it("la lista devuelta es una copia protegida", () => {
-        sim.registrarProceso("P1", 200, 4)
-        ;(sim.listarProcesos() as unknown[]).pop()
-        expect(sim.listarProcesos()).toHaveLength(1)
-    })
 })

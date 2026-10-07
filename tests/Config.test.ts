@@ -12,11 +12,11 @@ describe("RF01 - Config", () => {
     it("la configuracion de referencia es 1024 KB y quantum 2", () => {
         const config = Config.referencia()
         expect(config.getMemoria()).toBe(1024)
-        expect(config.getQuantum()).toBe(2)
+        expect(config.getQuantum()).toBe(3)
     })
 
     it.each([0, -1, 1.5, NaN, Infinity])("rechaza memoria ", (valor) => {
-        expect(() => new Config(valor, 2)).toThrow(ConfigInvalidaError)
+        expect(() => new Config(valor, 3)).toThrow(ConfigInvalidaError)
     })
 
     it.each([0, -1, 1.5, NaN, Infinity])("rechaza quantum ", (valor) => {

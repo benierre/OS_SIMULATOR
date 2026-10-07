@@ -236,7 +236,7 @@ describe("RF03 - admision de procesos y memoria", () => {
         expect(sim.getCambiosDeContexto()).toBe(1)
     })
 
-    it("el bloqueo prevalece sobre quantum y al terminar puede ejecutar en ese tick", () => {
+    it("el bloqueo sigue estando sobre quantum y al terminar puede ejecutar en ese tick", () => {
         const sim = new Simulator(new Config(100, 1))
         sim.registrarProceso("P1", 20, 2)
         sim.programarBloqueo("P1", 1, 1)
